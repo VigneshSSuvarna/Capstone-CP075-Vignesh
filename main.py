@@ -1,4 +1,9 @@
+import math
+
+collection_history = []
+
 bins_database = []
+
 def add_bin():
     print("\n--- Add a New Bin ---")
     try:
@@ -64,27 +69,81 @@ def update_bin():
     # If the loop finishes without returning, the ID wasn't found
     print(f"Error: Bin ID '{target_id}' not found.")
 
+def view_route():
+    print("\n--- Route Planning & Alerts ---")
+    
+    # 1. Feature 3 & 5: Filter bins > 75% and trigger alerts
+    bins_to_collect = []
+    for b in bins_database:
+        if b["fill_level"] >= 100:
+            print(f"⚠️ WARNING: Bin {b['id']} is OVERFLOWING!")
+            
+        if b["fill_level"] > 75:
+            bins_to_collect.append(b.copy()) # Copy to safely remove items later
+            
+    if not bins_to_collect:
+        print("No bins currently require collection.")
+        return
+        
+    print(f"\nBins requiring collection: {[b['id'] for b in bins_to_collect]}")
+    
+    # 2. Feature 4: Nearest-Neighbor Routing
+    current_x, current_y = 0.0, 0.0 # Starting at the Depot
+    route = []
+    
+    while bins_to_collect:
+        nearest_bin = None
+        min_dist = float('inf')
+        
+        for b in bins_to_collect:
+            # Euclidean distance formula
+            dist = math.sqrt((b["x"] - current_x)**2 + (b["y"] - current_y)**2)
+            if dist < min_dist:
+                min_dist = dist
+                nearest_bin = b
+        
+        # Move truck to nearest bin
+        route.append(nearest_bin["id"])
+        current_x, current_y = nearest_bin["x"], nearest_bin["y"]
+        bins_to_collect.remove(nearest_bin)
+        
+    print("\n📍 Optimized Collection Route:")
+    print("Depot -> " + " -> ".join(route))
+    
+    # 3. Feature 5: Update Collection History
+    log_entry = f"Collection run initiated for {len(route)} bins: {', '.join(route)}"
+    collection_history.append(log_entry)
+    print(f"\n[System Log] {log_entry}")
+
 def main():
     while True:
         print("\n=== BinSense Route Planner ===")
         print("1. Add a New Bin")
         print("2. Update Fill Level ")
         print("3. View Route (Coming Soon)")
-        print("4. Exit")
+        print("4. View Collection History")
+        print("5. Exit")
         
-        choice = input("Select an option (1-4): ")
+        choice = input("Select an option (1-5): ")
         
         if choice == '1':
             add_bin()
         elif choice == '2':
-           update_bin()
+            update_bin()
         elif choice == '3':
-            print("\nFeature in development for next week.")
+            view_route()
         elif choice == '4':
+            print("\n--- Collection History ---")
+            if not collection_history:
+                print("No collections run yet.")
+            else:
+                for log in collection_history:
+                    print(f"- {log}")
+        elif choice == '5':
             print("\nExiting BinSense. Goodbye!")
             break
         else:
-            print("\nInvalid choice. Please select 1, 2, 3, or 4.")
+            print("\nInvalid choice. Please select 1-5.")
 
 # This ensures the script runs when executed directly
 if __name__ == "__main__":
