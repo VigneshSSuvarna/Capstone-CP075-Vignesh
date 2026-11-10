@@ -1,1 +1,2 @@
 Collection for 4 bins: D02, D04, D01, D05 | Distance: 21.21
+Collected 3 bins (B02, B04, B01) | Dist: 14.14 | Saved: 156.98
