@@ -3,6 +3,11 @@ def add_bin():
     print("\n--- Add a New Bin ---")
     try:
         bin_id = input("Enter Bin ID (e.g., B01): ")
+        for b in bins_database:
+            if b["id"] == bin_id:
+                print("Error: A bin with this ID already exists.")
+                return
+        
         loc_x = float(input("Enter Location X coordinate: "))
         loc_y = float(input("Enter Location Y coordinate: "))
         fill_level = float(input("Enter Fill Level (0-100): "))
@@ -25,11 +30,45 @@ def add_bin():
         
     except ValueError:
         print("Invalid input! Coordinates and fill level must be numbers.")
+
+def update_bin():
+    print("\n--- Update Bin Fill Level ---")
+    
+    # Check if database is empty
+    if not bins_database:
+        print("No bins recorded yet. Please add a bin first.")
+        return
+
+    target_id = input("Enter Bin ID to update: ")
+    
+    # Search for the bin
+    for b in bins_database:
+        if b["id"] == target_id:
+            try:
+                new_fill = float(input(f"Enter new fill level for {target_id} (0-100): "))
+                
+                # Validate bounds
+                if new_fill < 0 or new_fill > 100:
+                    print("Error: Fill level must be between 0 and 100.")
+                    return
+                
+                # Update the value
+                b["fill_level"] = new_fill
+                print(f"Success! Bin {target_id} updated to {new_fill}%.")
+                return
+                
+            except ValueError:
+                print("Invalid input! Fill level must be a number.")
+                return
+    
+    # If the loop finishes without returning, the ID wasn't found
+    print(f"Error: Bin ID '{target_id}' not found.")
+
 def main():
     while True:
         print("\n=== BinSense Route Planner ===")
         print("1. Add a New Bin")
-        print("2. Update Fill Level (Coming Soon)")
+        print("2. Update Fill Level ")
         print("3. View Route (Coming Soon)")
         print("4. Exit")
         
@@ -38,7 +77,7 @@ def main():
         if choice == '1':
             add_bin()
         elif choice == '2':
-            print("\nFeature in development for next week.")
+           update_bin()
         elif choice == '3':
             print("\nFeature in development for next week.")
         elif choice == '4':
